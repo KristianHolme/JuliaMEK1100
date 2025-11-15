@@ -1,0 +1,8 @@
+# Forord {.unnumbered}
+
+Dette dokumentet er en oversettelse fra Matlab til Julia av deler av kapittel 3 og 5 i boka "Feltteori og vektoranalyse" av Bjørn Gjevik og Morten Wang Fagerland. Dokumentet er også basert på oversettelsen til Python av Karsten Trulsen.
+
+Dokumentasjonen til julia kan du finne her: [docs.julialang.org](https://docs.julialang.org/en/v1/manual/getting-started/).
+
+#
+#

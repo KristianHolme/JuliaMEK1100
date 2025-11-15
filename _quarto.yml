@@ -1,0 +1,48 @@
+project:
+  type: book
+  output-dir: _site
+
+book:
+  title: "Julia i MEK1100"
+  subtitle: "En oversettelse fra Matlab til Python av deler av kapittel 3 og 5 i boka **Feltteori og vektoranalyse** av Bjørn Gjevik og Morten Wang Fagerland"
+  author:
+    - Kristian Holme
+  original-author:
+    - Bjørn Gjevik
+    - Morten Wang Fagerland
+    - Karsten Trulsen
+  chapters:
+    - index.qmd
+    - kapittel3.qmd
+    - kapittel5.qmd
+    - bibliografi.qmd
+  sidebar:
+    logo: "figurer/juliamek1100_logo.png"
+    search: true
+    style: "floating"
+    collapse-level: 2
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    appearance: toggle
+    toc: false
+    number-sections: false
+  pdf:
+    documentclass: scrreprt
+    classoption:
+      - titlepage
+      - oneside
+    toc: false
+    geometry:
+      - margin=25mm
+engines: [julia]
+execution:
+  eval: true
+julia:
+  execute:
+    daemon-timeout: 1800
+bibliography: "MEK1100.bib"
+lang: nb

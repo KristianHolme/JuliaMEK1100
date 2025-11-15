@@ -1,0 +1,350 @@
+# Kapittel 5: En praktisk anvendelse av $\nabla$-operatoren i meteorologi
+
+## 5.1 Innledning
+Her skal vi prøve å reprodusere noen av eksemplene fra kapittel 5 i boken. Vi bruker et litt annet datasett enn det som gjøres i boken. Les gjerne innledningen i kapittel 5 i boken før du begynner.
+
+## 5.2 Innlesing av data
+Her laster vi ned datasettet fra nettet (det er 18GB, så det kan ta litt tid).
+```{julia}
+using Downloads
+url = "https://thredds.met.no/thredds/fileServer/nora3_subset_atmos/atm_hourly/arome3km_1hr_200202.nc"
+dl_path = joinpath(homedir(), "Downloads", "arome3km_1hr_200202.nc")
+```
+
+```julia
+Downloads.download(url, dl_path) # dette kan ta lang tid, filen er 18GB!
+```
+
+Vi leser inn datasettet med `NCDatasets.jl`.
+```{julia}
+using NCDatasets
+ds = NCDataset(dl_path);
+```
+Så må vi prosesserer vi dataene. Vi finner akkurat det tidspunktet vi vil ha, og henter ut de datene vi trenger. Datasettet gjelder et stort område, så vi filtrerer ut omtrent halvparten av dataene.
+
+```{julia}
+using Dates
+datetime = DateTime(2002, 2, 19, 18) # 19. Februar 2002 18:00
+time_ix = findfirst(ds["time"] .== datetime) # indeks for tiden 19. Februar 2002 18:00
+
+## filterer ut halvparten av dataen
+ny_full = length(ds["latitude"][1, :])
+ny_sub = ny_full ÷ 2
+
+p = Array(ds["air_pressure_at_sea_level"][:, 1:ny_sub, 1, time_ix] ./ 100 .|> Float32)
+wind_direction_from_degree = ds["wind_direction"][:, 1:ny_sub, 1, time_ix] .|> Float32
+wind_direction_to_rad = deg2rad.(wind_direction_from_degree)
+wind_speed = ds["wind_speed"][:, 1:ny_sub, 1, time_ix] .|> Float32
+u = -wind_speed .* sin.(wind_direction_to_rad)
+v = -wind_speed .* cos.(wind_direction_to_rad)
+longitudes = Array(ds["longitude"][:, 1:ny_sub]) .|> Float32
+latitudes = Array(ds["latitude"][:, 1:ny_sub]) .|> Float32
+xs = Array(ds["x"]) .|> Float32
+ys = Array(ds["y"])[1:ny_sub] .|> Float32
+@show length(xs)
+@show length(ys)
+```
+Her ser vi at vi har $889 \times 744$ punkter i datasettet.
+
+Nå vil $p, u$ og $v$ være matriser der hvert element enten er en trykkverdi eller en komponent av vindstyrken. $p_{ij}$ er altså en diskret representasjon av skalarfeltet $p(x, y)$ som beskriver trykkfeltet i området, og $u_{ij}$ og $v_{ij}$ er diskrete representasjoner for komponentene av vindvektoren $\mathbf v = u(x, y)\mathbf i + v(x, y)\mathbf j$.
+
+Vi kontrollerer størrelsene på matrisene:
+```{julia}
+@show size(p)
+@show size(u)
+@show size(v)
+```
+Alle har $889$ punkter i øst/vest-retningen, og $744$ punkter i nord/sør-retningen.
+
+Nå kan vi plotte en ramme rundt området vi skal jobbe med, slik som i boken. For å gjøre det, bruker vi pakken `GeoMakie.jl`. I motsetning til i boka, bruker vi ikke kartesiske koordinater, men vi bruker breddegrader og lengdegrader. I koden over er `longitudes` og `latitudes` matriser som beskriver lengdegradene og breddegradene til hvert punkt i datasettet.
+```{julia}
+#| label: fig-værdata-område
+#| fig-cap: Værdata som vi skal behandle er innenfor det innrammede området på kartet.
+using CairoMakie
+using GeoMakie
+limits = ((-22, 7), (52, 67))
+bottom_points = Point2f.(Array(longitudes[:, 1]), Array(latitudes[:, 1]))
+right_points = Point2f.(Array(longitudes[end, :]), Array(latitudes[end, :]))
+top_points = Point2f.(Array(longitudes[:, end]), Array(latitudes[:, end]))
+left_points = Point2f.(Array(longitudes[1, :]), Array(latitudes[1, :]))
+points = vcat(bottom_points, right_points, reverse(top_points), reverse(left_points))
+
+fig = Figure(size=(800, 400))
+ax = GeoAxis(fig[1, 1]; limits = ((-30, 30), (40, 80)))
+lines!(ax, GeoMakie.coastlines(50), color=:black)
+lines!(ax, points)
+fig
+```
+
+## 5.3 Plotting av isobarer
+Vi kan nå plotte konturlinjer til trykket (isobarer). For å dinne et riktig antall konturlinjer med passende trykkverdier kreves det gjerne litt eksperimentering. For dette feltet passer det bra med jevnt fordelte isobarer fra $980$ hPa til $1025$ hPa med $5$ hPa differanse. Husk at trykket er gitt som en matrise `p`.
+
+```{julia}
+#| label: værdata-isobarer
+#| fig-cap: Isobarene $p = 980, 985, \dots, 1025$ hPa. Trykkfeltet viser et langstrakt lavtrykkområde som ligger mellom Skottland og Island, i likhet med det vi så i boka.
+isobarer = 980:5:1025
+fig = Figure(size=(800, 400))
+ax = GeoAxis(fig[1, 1]; limits)
+contour!(ax, longitudes, latitudes, p, levels=isobarer,
+    labels=true, linewidth=2, labelsize=15
+)
+lines!(ax, GeoMakie.coastlines(50), color=:black)
+fig
+```
+
+
+Vi kan også plotte trykkfeltet med innfylling av flatene mellom konturlinjene med `contourf!`.
+```{julia}
+fig = Figure(size=(800, 400))
+ax = GeoAxis(fig[1, 1]; limits)
+cf = contourf!(ax, longitudes, latitudes, p, colormap=:viridis, levels=100)
+lines!(ax, GeoMakie.coastlines(50), color=:black)
+Colorbar(fig[1, 2], cf, label="Trykk (hPa)")
+fig
+```
+
+## 5.4 Plotting av vindfelt
+
+Siden vi nå har vindkomponentene gitt som to like store matriser kan vi enkelt plotte vindfeltet. Her passer vi på å ikke bruke alle punktene, da det ville gitt veldig mange piler. Vi bruker her en steglengde på $20$ punkter i hver retning. Vi plotter også trykkfeltet.
+
+```{julia}
+#| label: fig-værdata-vindfelt
+#| fig-cap: Vindfeltet visualisert som piler som viser vindretning og -styrke.
+steg = 20
+fig = Figure(size=(800, 400))
+ax = GeoAxis(fig[1, 1]; limits)
+contourf!(ax, longitudes, latitudes, p, levels = 100, colormap = :viridis)
+arrows2d!(ax, 
+    longitudes[1:steg:end, 1:steg:end], 
+    latitudes[1:steg:end, 1:steg:end], 
+    u[1:steg:end, 1:steg:end], 
+    v[1:steg:end, 1:steg:end], 
+    lengthscale=0.03, color=:orange
+)
+lines!(ax, GeoMakie.coastlines(50), color=:black)
+fig
+```
+Vi kan også plotte konturlinjer for vindstyrken, med innfylling av flatene mellom konturlinjene.
+
+```{julia}
+#| label: fig-værdata-vindstyrke
+#| fig-cap: Konturlinjer for vindstyrke, med innfylling av flatene mellom konturlinjene.
+fig = Figure(size = (800, 400))
+ax = GeoAxis(fig[1, 1]; limits)
+cf = contourf!(ax, longitudes, latitudes, wind_speed, colormap = :viridis, levels = 100)
+lines!(ax, GeoMakie.coastlines(50), color = :black)
+Colorbar(fig[1, 2], cf, label = "Vindstyrke (m/s)")
+fig
+```
+
+Her ser vi mye kult! Her kan vi merke oss at vindstyrke-dataene gjelder i en høyde av $10$ meter over bakken:
+
+```{julia}
+display(ds["wind_speed"])
+display(ds["height4"])
+display(ds["height4"][1])
+```
+
+## 5.5 Divergens
+Divergensen til et vektorfelt er en skalar størrelse. Denne størrelsen kan vi beregne i Julia dersom vi kjenner komponentene til vektorfeltet. Vindfeltet har komponenter $u$ og $v$, og uttrykket for divergensen er
+$$
+\nabla \cdot \mathbf v = \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y}
+$$
+
+Her hvor $u$ og $v$ er kjent bare i gitterpunktene ved matrisene $u_{ij}$ og $v_{ij}$ er de deriverte i uttrykket for divergensen approksimert med 
+$$
+\frac{\partial u}{\partial x} \approx \frac{u_{i+1,j} - u_{i-1,j}}{\Delta x}, \text{ og }\\
+\frac{\partial v}{\partial y} \approx \frac{v_{i,j+1} - v_{i,j-1}}{\Delta y}
+$$
+
+Her lager vi en funksjon for å beregne divergensen numerisk. Når vi er på randen av området bruker vi ensidige differanser, mens vi i indre punkter bruker sentrale differanser som i ligningen over.
+
+```{julia}
+#| echo: true
+#| output: false
+"""
+    punkt_divergens(u, v, i, j, Δx, Δy)
+Beregner divergensen i punktet med indeks (i, j) med ensidige og sentrale differanser.
+
+Argumenter:
+- u: Matrise med u-komponenten av vinden
+- v: Matrise med v-komponenten av vinden
+- i: Indeks i x-retningen
+- j: Indeks i y-retningen
+- Δx: Steglengde i x-retningen
+- Δy: Steglengde i y-retningen
+
+Returnerer:
+Divergensen i punktet (i, j)
+"""
+function punkt_divergens(u, v, i, j, Δx, Δy)
+    if i == 1
+        dudx = (u[i + 1, j] - u[i, j]) / Δx
+    elseif i == size(u, 1)
+        dudx = (u[i, j] - u[i - 1, j]) / Δx
+    else
+        dudx = (u[i + 1, j] - u[i - 1, j]) / (2 * Δx)
+    end
+    if j == 1
+        dvdy = (v[i, j + 1] - v[i, j]) / Δy
+    elseif j == size(v, 2)
+        dvdy = (v[i, j] - v[i, j - 1]) / Δy
+    else
+        dvdy = (v[i, j + 1] - v[i, j - 1]) / (2 * Δy)
+    end
+    return dudx + dvdy
+end
+
+"""
+    divergens(u, v, Δx, Δy)
+Beregner divergensen av vinden med ensidige og sentrale differanser.
+
+Argumenter:
+- u: Matrise med u-komponenten av vinden
+- v: Matrise med v-komponenten av vinden
+- Δx: Steglengde i x-retningen
+- Δy: Steglengde i y-retningen
+
+Returnerer:
+- div: Matrise med divergensen av vinden
+"""
+function divergens(u, v, Δx, Δy)
+    div = similar(u)
+    I = 1:size(u, 1)
+    J = 1:size(u, 2)
+    for i in I, j in J
+        div[i, j] = punkt_divergens(u, v, i, j, Δx, Δy)
+    end
+    return div
+end
+```
+
+Nå kan vi beregne divergensen til hastighetsfeltet.
+
+```{julia}
+Δx = xs[2] - xs[1]
+Δy = ys[2] - ys[1]
+wind_div = divergens(u, v, Δx, Δy)
+```
+
+Vi kan nå plotte divergensen:
+```{julia}
+#| label: fig-værdata-divergens
+#| fig-cap: Divergensen til vindfeltet.
+fig = Figure(size = (800, 400))
+ax = GeoAxis(fig[1, 1]; limits)
+cf = contourf!(ax, longitudes, latitudes, wind_div, colormap = :curl, levels = 100)
+lines!(ax, GeoMakie.coastlines(50), color = :black)
+Colorbar(fig[1, 2], cf, label = "Divergens (s⁻¹)")
+fig
+```
+
+## 5.6 Virvling
+Virvlingen for vindfeltet er rettet normalt på $xy$-planet og størrelsen er 
+$$ 
+c = \frac{\partial v}{\partial x} - \frac{\partial u}{\partial y}.
+$${#eq-virvling}
+
+På tilsvarende måte som divergensen approksimeres de deriverte med differanser av de diskrete verdiene:
+
+$$
+\frac{\partial v}{\partial x} \approx \frac{v_{i+1,j} - v_{i-1,j}}{\Delta x}, \text{ og }\\
+\frac{\partial u}{\partial y} \approx \frac{u_{i,j+1} - u_{i,j-1}}{\Delta y}
+$${#eq-virvling-approksimasjon}
+
+
+Her definerer vi en funksjon for å beregne virvlingen numerisk:
+
+```{julia}
+#| echo: true
+
+"""
+    punkt_virvling(u, v, i, j, Δx, Δy)
+Beregner virvlingen i punktet med indeks (i, j) med ensidige og sentrale differanser.
+
+Argumenter:
+- u: Matrise med u-komponenten av vinden
+- v: Matrise med v-komponenten av vinden
+- i: Indeks i x-retningen
+- j: Indeks i y-retningen
+- Δx: Steglengde i x-retningen
+- Δy: Steglengde i y-retningen
+
+Returnerer:
+- virvlingen i punktet (i, j)
+"""
+function punkt_virvling(u, v, i, j, Δx, Δy)
+    if i == 1
+        dvdx = (v[i + 1, j] - v[i, j]) / Δx
+    elseif i == size(u, 1)
+        dvdx = (v[i, j] - v[i - 1, j]) / Δx
+    else
+        dvdx = (v[i + 1, j] - v[i - 1, j]) / (2 * Δx)
+    end
+    if j == 1
+        dudy = (u[i, j + 1] - u[i, j]) / Δy
+    elseif j == size(v, 2)
+        dudy = (u[i, j] - u[i, j - 1]) / Δy
+    else
+        dudy = (u[i, j + 1] - u[i, j - 1]) / (2 * Δy)
+    end
+    return dvdx - dudy
+end
+
+"""
+    virvling(u, v, Δx, Δy)
+Beregner virvlingen av vinden med ensidige og sentrale differanser.
+
+Argumenter:
+- u: Matrise med u-komponenten av vinden
+- v: Matrise med v-komponenten av vinden
+- Δx: Steglengde i x-retningen
+- Δy: Steglengde i y-retningen
+
+Returnerer:
+- virvling: Matrise med virvlingen av vinden
+"""
+function virvling(u, v, Δx, Δy)
+    virvling = similar(u)
+    I = 1:size(u, 1)
+    J = 1:size(u, 2)
+    for i in I, j in J
+        virvling[i, j] = punkt_virvling(u, v, i, j, Δx, Δy)
+    end
+    return virvling
+end
+```
+
+Nå kan vi beregne virvlingen til hastighetsfeltet.
+
+```{julia}
+wind_curl = virvling(u, v, Δx, Δy)
+```
+
+Vi kan nå plotte konturlinjer for virvlingen. Her velger vi å zoome in på et mindre område sør for Island. 
+
+```{julia}
+#| label: fig-værdata-virvling-kontur
+#| fig-cap: Konturlinjer for virvlingen til vindfeltet, skalert med $\Delta x$.
+fig = Figure(size = (800, 400))
+ax = GeoAxis(fig[1, 1]; limits = ((-26, -10), (59, 67)))
+c = contour!(ax, longitudes, latitudes, wind_curl * Δx, levels = [1, 5, 10, 15, 20], labels = true)
+lines!(ax, GeoMakie.coastlines(50), color = :black)
+# Colorbar(fig[1, 2], c, label = "Virvling (s⁻¹)")
+fig
+```
+
+Vi tar også med et plot med innfylling av flatene mellom konturlinjene, for å få frem flere detaljer:
+
+```{julia}
+#| fig-cap: Konturlinjer for virvlingen til vindfeltet, skalert med $\Delta x$, med innfylling av flatene mellom konturlinjene.
+fig = Figure(size = (800, 400))
+ax = GeoAxis(fig[1, 1]; limits)
+cf = contourf!(ax, longitudes, latitudes, wind_curl * Δx, colormap = :ocean, levels = 100)
+lines!(ax, GeoMakie.coastlines(50), color = :black)
+Colorbar(fig[1, 2], cf, label = L"Virvling/$|\Delta x|$ ($s^{-1}$)")
+fig
+```
+
+## 5.7 Tolkninger
+Her referer vi til kapittel 5.7 i boken, som gjelder uavhengig av programmeringsspråk.

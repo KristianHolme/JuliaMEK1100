@@ -1,0 +1,810 @@
+# Kapittel 3: Bruk av Julia
+
+## 3.1 Innledning
+Vi starter med et lite avsnitt om hvorfor det kan være en god idé å bruke Julia, istedet for alternativer som Matlab og Python.
+I likhet med Matlab er Julia laget for vitenskapelige beregninger, og har mye innebygget funksjonalitet for dette. Sammenlignet med Matlab er Julia mer moderne, det er gratis å bruke, det er i mange tilfeller raskere enn Matlab, og det er mye enklere å bruke kode (pakker, funksjoner, etc.) som andre har laget, eller dele din egen kode så andre kan bruke den. 
+
+Mange av disse fordelene gjelder også i sammenligning med Python. Python er i motsetning til Julia ikke laget spesifikt for vitenskapelige beregninger, og det kan være vanskeligere å få relativt enkle programmer til å kjøre raskt. Det er mange muligheter for å få koden til å kjøre raskt, men de fleste av disse går ut på å bruke pakker som er skrevet i andre språk enn Python, eller ved å kompilere koden på ikke-standard måter. 
+
+I [dokumentasjonen](https://docs.julialang.org/en/v1/manual/noteworthy-differences/) til Julia kan du lese mer om forskjellene mellom Julia og andre språk (inkludert Python og Matlab).
+
+Kort oppsumert er Julia et godt valg for vitenskapelige beregninger, fordi språket er (basert på forfatterens subjektive mening) enklere å lære, raskere å kjøre, og morsommere å skrive enn Python og Matlab. 
+
+Det finnes selvfølgelig flere grunner til å ikke bruke Julia, feks. 
+- Julia er ikke like utbredt som Matlab og Python, så det kan være pakker for spesielle bruksområder som ikke finnes i Julia. (Heldigvis kan man enkelt bruke python-pakker i Julia, med pakken PythonCall.jl)
+- Hvis man allerede er komfortabel med Matlab eller Python, og ikke er interessert i å lære seg et nytt språk.
+
+
+I dette dokumentet vil vi bruke standard Julia for beregninger, og plotte-biblioteket [Makie.jl](https://docs.makie.org/stable/) for plotting. Makie er et moderne bibliotek for datavisualisering og plotting, og er et av de mest populære plotte-bibliotekene i Julia. 
+
+
+## 3.2 Litt grunnleggende Julia
+
+#### 3.2.0 Installere Julia
+Å installere julia er enkelt. Det kan gjøres fra [julialang.org/install/](https://julialang.org/install/). Kort oppsummert: er du på en datamaskin med Linux eller macOS, er det bare å kjøre følgene kommando i terminalen:
+```bash
+curl -fsSL https://install.julialang.org | sh
+```
+Dette installerer også programmet `juliaup` som er et program for å håndtere ulike versjoner, og oppgradering av julia. Hvordan man bruker `juliaup` er beskrevet på `juliaup` sin github-side: [github.com/JuliaLang/juliaup](https://github.com/JuliaLang/juliaup)
+
+Hvis du bruker Windows kan du gå til [Microsoft store](https://apps.microsoft.com/detail/9njnww8pvkmn?hl=nb-NO&gl=NO), eller kjøre følgende kommando i kommandolinjen:
+```
+winget install --name Julia --id 9NJNWW8PVKMN -e -s msstore
+``` 
+
+Her vil vi gi en liten introduksjon til hvordan man starter med å bruke julia. Det finnes mange andre ressurser på internett som kan hjelpe deg med å komme i gang, f.eks. [denne](https://youtube.com/playlist?list=PLhQ2JMBcfAsiu2BjeDuj0OXxD1Or_FjID&si=eNP1FW-ErIrD5fvA) spillelisten med korte videoer på youtube.
+
+Står du fast, vil som regel et kjapt google-søk eller en LLM-prompt (f.eks. ChatGPT) hjelpe deg. Hvis dette ikke løser problemet, kan du spørre forfatteren/oversetteren for hjelp.
+
+
+### 3.2.1 Oppstart, grensesnitt, kommentarer
+På samme måte som Matlab og Python, brukes julia hovedsaklig enten i kommandolinjen/terminalen eller i et programmeringsgrensesnitt, eller en kombinasjon av de to. For å starte julia i terminalen skriver man `julia` og trykker enter:
+
+```{=html}
+<script src="https://asciinema.org/a/6RXHV00mGdkGeZ746Nvx53SVb.js" id="asciicast-6RXHV00mGdkGeZ746Nvx53SVb" async="true"></script>
+```
+
+Vi ser at julia starter med en liten hilsen, og en prompt `julia>`. Deretter kan vi skrive inn en kommando, trykke enter, og få svaret.
+For å avslutte julia, skriver man `exit()` (eller trykker enter) eller gjør tastekombinasjonen `Ctrl+D`.
+
+
+Programmet som kjører når vi bruker julia i kommandolinjen kalles for julias REPL. Det står for Read-Eval-Print Loop, og det er naturlig nok akkurat det en REPL gjør. Den leser kommandoer, evaluerer dem, og printer ut resultatet. 
+
+#### 3.2.1.1 Hjelpemodus
+Julias REPL har flere forskjellige moduser. Den mest nyttige for en nybegynner er hjelpemodusen. Vi kan gå inn i hjelpemodusen ved å skrive `?`. Da endres prompten fra `julia>` til `help?>`. I hjelpemodusen kan vi skrive inn navn på funksjoner, operatorer, eller andre ting, og få en beskrivelse av hva de gjør, og eksempler på hvordan de kan brukes. For eksempel:
+
+```{=html}
+<script src="https://asciinema.org/a/lC27gGdiynPoZZzHFBjeiEM2e.js" id="asciicast-lC27gGdiynPoZZzHFBjeiEM2e" async="true"></script>
+```
+
+For å gå ut av hjelpemodusen trykker man tilbaketasten (backspace).
+
+#### 3.2.1.2 Pakkemodus
+En annen nyttig modus er pakkemodusen. De som kommer fra en bakgrunn i python vet kanskje at det kan være vrient å håndtere pakker ved å bruke pip, conda, anaconda, virtuelle miljøer, etc. I julia er det mye enklere. Vi kan gå inn i pakkemodusen ved å skrive `]`. Da endres prompten fra `julia>` til `(@1.12) pkg>`. Denne prompten betyr at vi er i grunn-miljøet til julia, med versjon 1.12. I pakkemodusen kan vi gjøre mange kommandoer som har med pakker å gjøre. For å få en liste over alle tilgjengelige kommandoer, skriver man `help` (og trykker enter). For eksempel:
+```{=html}
+<script src="https://asciinema.org/a/DwBmt3gvFSU9SHFYeeB2WgJBx.js" id="asciicast-DwBmt3gvFSU9SHFYeeB2WgJBx" async="true"></script>
+```
+
+Her ser vi at vi kan legge til pakker ved å bruke kommandoen `add`. En pakke som alle burde ha i sitt grunn-miljø er `Revise.jl`. Det er en pakke som gjør at vi slipper å restarte julia hver gang vi endrer på kode. Her legger vi til Revise.jl:
+
+```{=html}
+<script src="https://asciinema.org/a/MgGkAZWtoDBE0t9WtoNE8Hfiu.js" id="asciicast-MgGkAZWtoDBE0t9WtoNE8Hfiu" async="true"></script>
+```
+Avhengig av hvor mange andre pakker vi har i miljøet, kan det ta noen sekunder å installere pakker. Når vi installerer pakker blir koden til pakkene lasted ned og prekompilert.
+
+Det kan være lurt å sette opp maskinen sin slik at [Revise.jl](https://timholy.github.io/Revise.jl/stable/) automatisk aktiveres når du starter julia. Det kan du lese mer om her: [Revise.jl config](https://timholy.github.io/Revise.jl/stable/config/).
+
+Når vi bruker julia i forskjellige prosjekter, lønner det seg bruke spesifikke miljøer for hvert prosjekt. Hvis vi har en mappe som heter `MEK1100`der vi har all koden vi skriver for dette faget, lager vi et eget miljø for denne mappen ved å navigere til mappen i terminalen, starte julia, gå inn i pakkemodusen og skrive `activate .` (punktumet skal være med!). Da endres prompten fra `(@v1.12) pkg>` til `(@MEK1100) pkg>`. Denne prompten betyr at vi er i miljøet for prosjektet `MEK1100`.
+
+Nå er vi i miljøet for prosjektet `MEK1100`. Her kan vi legge til de pakkene vi trenger for dette emnet. I dette miljøet har vi også tilgang til alle pakkene vi har i grunnmiljøet. 
+
+Når vi skal bruke Makie.jl til plotting må vi velge hvilken backend vi skal bruke. Her har man flere alternativer, men enkelt sagt er det to alternativer som er mest populære. Hvis vi ønsker høyoppløste plots vi kan eksportere som vektorgrafikk (f.eks. for å inkludere i en rapport), bruker vi pakken `CairoMakie.jl`. Hvis vi er interessert i interaktivitet (zoom, rotasjon, knapper, etc.) bruker vi pakken `GLMakie.jl`. Nå legger vi til begge pakkene i MEK1100-miljøet:
+
+```{=html}
+<script src="https://asciinema.org/a/CAVa7erLnqDUqdV41E9tgYzaX.js" id="asciicast-CAVa7erLnqDUqdV41E9tgYzaX" async="true"></script>
+```
+Å legge til disse pakkene kan ta litt tid, ettersom de har mye kode som skal prekompileres (jeg hadde allerede pakkene prekompilert når jeg tok dette opptaket).
+
+##### 3.2.1.2.* Hvordan julia er raskere enn Matlab og Python
+I motsetning til Matlab og Python, bruker Julia en såkallt "just-in-time"-kompilator, som kompilerer koden til maskinkode rett før den kjøres, i stedet for å kompilere koden til maskinkode når den installeres.
+Når dette gjøres spesialiseres funksjonene for de input-argumentene du bruker. Disse to tingene: spesialisering og kompilering, er det som gjør julia raskere enn Matlab og Python, nesten like raskt som C. Ulempen med dette er det kan ta litt tid å kjøre en funksjon for første gang, fordi koden du skal må spesialiseres og kompileres. Prekompilering er når julia gjetter på hvordan du kommer til bruke noen funksjoner i en pakke, og kompilerer koden til maskinkode på forhånd. Dette skjer som sagt ofte når vi laster ned pakker, eller oppdaterer pakker. 
+
+#### 3.2.1.3 Julia i VS Code
+Det er vel og bra å kun bruke julia i terminalen, men som oftest er det enklere å bruke julia i et programmeringsgrensesnitt (engelsk: IDE - Integrated Development Environment). Det mest populære grensesnittet for julia er VS Code, som er et gratis programmeringsgrensesnitt. Det kan lastes ned fra nettsiden [code.visualstudio.com](https://code.visualstudio.com/).
+
+Når man har innstallert VS Code, er det neste man må gjøre å innstallere [utvidelsen for julia](https://www.julia-vscode.org/docs/stable/gettingstarted/).
+
+Når vi har Julia-utvidelsen, kan vi starte VS Code, åpne mappen vi skal lagre filene våre i (feks. MEK1100-mappen). Deretter kan vi starte med å lage et script. Da kan vi lage en mappe som heter `scripts`, og der opprette en fil som heter `script.jl`. Da kan vi skrive inn koden vår i filen.
+
+Når vi har åpnet filen i VS Code, kan vi starte opp Julia i VS Code med å trykke `alt + j + o`. Da får vi opp en julia-REPL, som er koblet til filene våre. Det betyr at vi kan skrive en linje i filen vår, trykke `ctrl + enter`. så vil den linjen kjøres i vår REPL. 
+
+Her følger et opptak der vi demonstrerer hvordan vi kan bruke Julia i VS Code. Vi åpner MEK1100-mappen og starter julia med `alt + j + o`. Vi åpner en fil som inneholder kode for å visualisere en funksjon. Deretter kjører vi filen linje for linje med `shift + enter` (dette gjør det samme som `ctrl + enter` i tillegg til å hoppe til neste linje). Resultatene av hver linje vises ved siden av linjen, og i vår REPL. Plottet vises i en ny fane i VS Code.
+
+![julia_vs_code](screen_recs/julia-vscode-demo.mp4)
+
+
+
+
+#### 3.2.1.3 Numerikk {#sec-numerikk}
+Numerikk i Julia gjøres med Array'er. Vi kan lage en array med klammeparenteser. Her skriver vi inn koden i filen vår, og trykker `ctrl + enter`. Da vil resultatet vises ved siden av linjen, og printes i REPL-en.
+
+```{julia}
+#| echo: true
+a = [1.2, 3.0, 4.2, 2.8]
+```
+Her får vi at resultatet er en vector, som er det samme som en 1-dimensjonal array. Vi kan også lage en array med `zeros(n)`, `ones(n)`, `rand(n)`, `randn(n)`, etc. (Du kan jo bruke hjelpemodusen for å finne ut hva rand og randn gjør!). For eksempel:
+```{julia}
+#| echo: true
+zeros(3)
+```
+
+Vi kan også lage en 2-dimensjonal array med `zeros(m, n)`, `ones(m, n)`, `rand(m, n)`, `randn(m, n)`, etc. For eksempel:
+```{julia}
+#| echo: true
+b = rand(2,4)
+```
+
+For å prossesere data i arrays eller vectorer trenger vi funksjoner. I funksjoner kan vi lage funksjoner på flere måter. Har vi en kort funksjon kan vi skrive den slik:
+
+```{julia}
+#| echo: true
+f(x) = 3x + sin(2x)
+```
+
+Hvis funksjonen er mer komplisert kan vi skrive den slik:
+
+```{julia}
+#| echo: true
+function g(x)
+    p = x + 1
+    q = 2x - p
+    return q^2
+end
+```
+
+Vi kan bruke funksjonene slik: 
+```{julia}
+#| echo: true
+a = 5.9
+ga = g(a)
+fa = f(a)
+println("g(a) = $(round(ga,digits=2)), f(a) = $(round(fa,digits=2))")
+```
+
+Hvis vi vil anvende en funksjon på alle elementene i en array/vektor, kan vi bruke "broadcasting". Det gjøres ved å skrive et punktum mellom funksjonsnavnet of argumentene: 
+```{julia}
+#| echo: true
+w = [1.2, 3.0, 4.2, 2.8]
+g.(w)
+```
+
+Dette fungerer også for funksjoner som har flere variabler. For eksempel:
+```{julia}
+#| echo: true
+h(x, y) = x + 1000y
+u = [1.2, 3.0, 4.2, 2.8]
+w = [9.8, 4.1, 5.7, 8.7]
+h.(u, w)
+```
+Her anvender vi funksjonen `h` parvis på elementene i vektorene `v` og `w`.
+Hvis vi vil anvende funksjonen på alle kobinasjoner av elementer i vektorene `v` og `w`, kan vi transponere den ene vektoren, så den blir en radvektor:
+```{julia}
+#| echo: true
+w'
+```
+Her ser vi at `w'` er en radvektor. Apostrof er tegnet for transponering i julia. Vi kan så anvende funksjonen `h` på alle kobinasjoner av elementer i vektorene `v` og `w`:
+```{julia}
+#| echo: true
+M = h.(u, w')
+```
+Her ser vi at et element $M_{i,j}$ er $h(v[i], w[j])$ for $i = 1:4$ og $j = 1:4$.
+
+#### 3.2.1.4 Plotting
+Nå skal vi se kjapt på hvordan vi kan plotte data med Makie.jl. Her importerer vi først CairoMakie.jl, lager noen punkter, og plotter dem. 
+
+```{julia}
+#| echo: false
+#| eval: true
+#| include: false
+using CairoMakie
+set_theme!(theme_latexfonts())
+update_theme!(fontsize=15)
+```
+
+```{julia}
+#| echo: true
+using CairoMakie
+x = 0:0.1:2π
+y = sin.(x)
+lines(x, y)
+```
+Her brukte vi funksjonen `lines` som plottet linjen mellom punktene i vektorene `x` og `y`. Ofte vil vi ha litt mer kontroll over figure vi lager, og da kan vi bruke funksjonen `Figure` og `Axis`, for å først lage en figure, så plassere en akse i plottet, og så plotte forskjellige ting på aksen:
+
+```{julia}
+#| echo: true
+t = 0:0.1:2π
+y = sin.(t)
+random_point_t = rand() .* 2π
+random_point_y = sin(random_point_t)
+
+fig = Figure()
+ax = Axis(fig[1, 1])
+lines!(ax, x, y, label="sin(x)")
+scatter!(ax, random_point_t, random_point_y, label="Random point", markersize=16, color= :green)
+vlines!(ax, random_point_t, color=:red, linestyle=:dash)
+hlines!(ax, random_point_y, color=:red, linestyle=:dash)
+axislegend(ax)
+fig
+```
+
+Her har vi brukt flere forskjellige plottefunksjoner fra Makie.jl. Bruk hjelpemodusen for å finne ut hva de gjør! Vi legger merke til at `lines!`-funksjonen vi brukte her sluttet med et utropstegn. Dette er en konvensjon som indikerer at funksjonen endrer på noen av argumentene. Her endrer vi på aksen, ved å plotte en linje. Vi kan også se at vi bruker `axislegend`-funksjonen til å legge til en beskrivelse av de forskjellige plottene. 
+
+Hvis vi vil lagre figuren vår til en fil, kan vi bruke funksjonen `save`. For eksempel:
+```{julia}
+#| echo: true
+filnavn = joinpath("figurer", "sin_plot.png")
+mkpath("figurer")
+save(filnavn, fig)
+```
+Her har vi brukt funksjonen `joinpath` til å lage en filsti til en mappe som heter `figurer`, og en fil som heter `sin_plot.png`. Vi har også brukt funksjonen `mkpath` til å lage mappen hvis den ikke finnes.
+
+#### 3.2.1.5 Emojier og matte-symboler
+I julia kan vi bruke emojier og matte-symboler direkte i koden vår. For eksempel:
+
+```{=html}
+<script src="https://asciinema.org/a/fg5BS7lV8bETbBYBQdlFKZxjy.js" id="asciicast-fg5BS7lV8bETbBYBQdlFKZxjy" async="true"></script>
+```
+For å få $\LaTeX$-symboler, kan vi bruke `\` før symbolet, slik som `\pi` for $\pi$, deretter trykker vi`tab` for å gjøre om `\pi` til $\pi$. For emojier bruker vi en kolon før symbolet, slik som `\:smile:` for 😊, og trykker `tab` for å gjøre om `\:smile:` til 😊. Er du usikker på hva en emoji heter, kan du trykke `tab` før du har skrevet ferdig navnet, f.eks. `\:smil` + `tab` for å få opp alle emojiene der navnet begynner på `smil`.
+
+
+### 3.2.2 Matriser
+I to av eksemplene overfor lagde vi en matrise ved å bruke `rand(m, n)`, og ved å bruke broadcasting av en funksjon over en kolonnevektor og en radvektor. Vi kan også lage matriser ved å skrive inn elementene direkte i en array:
+```{julia}
+#| echo: true
+A = [
+    1 3 0
+    2 0 4
+    1 3 1
+]
+```
+Som nevnt tidligere kan vi transponere matrisen ved å skrive en apostrof etter matrisen:
+```{julia}
+#| echo: true
+A'
+```
+Vi kan gjøre flere ting med matriser, for eksempel kan vi finne den inverse matrisen ved å skrive `inv(A)`. For å gjøre dette må vi benytte oss av det innebygde biblioteket `LinearAlgebra`.
+```{julia}
+#| echo: true
+using LinearAlgebra
+A_inv = inv(A)
+```
+
+Nå kan vi sjekke om dette virkerlig er den inverse matrisen ved å gange de sammen:
+```{julia}
+#| echo: true
+A_inv * A
+```
+Vi ser at resultatet er enhetsmatrisen, så vi ser at dette virkerlig er den inverse matrisen.
+
+Vi kan også finne determinanten av en matrise ved å skrive `det(A)`.
+```{julia}
+#| echo: true
+det(A)
+```
+Og vi kan finne summen av alle elementene i matrisen ved å skrive `sum(A)`.
+```{julia}
+#| echo: true
+sum(A)
+```
+Hvis vi kun vil summere over radene, eller kun kolonnene, kan vi bruke funksjonen `sum` med argumentet `dims=1` eller `dims=2`. For eksempel:
+```{julia}
+#| echo: true
+sum_kolonner = sum(A, dims=1)
+sum_rader = sum(A, dims=2)
+@show sum_kolonner sum_rader
+```
+
+I julia bruker matriser samme notasjon som i matematikk, dvs. $A_{i,j}$ er elementet i rad $i$ og kolonne $j$ i matrisen $A$. (i motsetning til Python, der matriser har indeksering som starter på 0. for det første elementet.)
+
+```{julia}
+#| echo: true
+A[2, 1] + A[3, 2]
+```
+
+Funksjonen `size`returnerer antall rader og kolonner i matrisen.
+```{julia}
+#| echo: true
+size(A)
+```
+Hvis vi vil ha det totale antaller elementer i matrisen, kan vi bruke funksjonen `length`.
+```{julia}
+#| echo: true
+length(A)
+```
+
+Hvis vi vil lage oss en diagonalmatrise, kan vi bruke funksjonen `diagm`.
+```{julia}
+#| echo: true
+diagm([1, 2, 3])
+```
+Hvis vi vil lage oss en enhetsmatrise, kan vi bruke funksjonen `eye`.
+ 
+### 3.2.3 Kolon-operatoren og LinRange
+Hvis vi vil generere en vektor med `n` elementer fra `a` til `b`, med jevne mellomrom, kan vi bruke `LinRange`-funksjonen:
+
+```{julia}
+#| echo: true
+u = LinRange(-15, 15, 11)
+```
+For å indeksere flere elementer i en vektor eller matrise, kan vi bruke kolon-operatoren. Hvis vi vil ha element 3 til og med 5 i vektoren over indekserer vi med `u[3:5]`.
+```{julia}
+#| echo: true
+u[3:5]
+```
+Hvis vi vil hvert tredje element fra og med element 4 og til slutten av vektoren, kan vi indeksere med  `u[4:3:end]`. 3-tallet betyr at vi starter på element 4, og går med 3 steg helt til vi kommer til det siste elementet i indekseringer (her bruker vi `end` som betyr siste indeks).
+```{julia}
+#| echo: true
+u[4:3:end]
+```
+
+Kolon-indeksering fungerer altså veldig likt som i matlab, men ganske forskjellige fra Python. I python tar man ikke med slutt-indeksen, og steglengden er det siste tallet i indekseringen (hvis man i python indekserer med 1:12:2 betyr det at man starter på det andre elementer, og går med 2 steg helt til element nummer 13.) Her er noen flere eksempler:
+
+```{julia}
+#| echo: true
+A = [
+  1 2 3 4
+  5 6 7 8
+  0 10 11 12
+  13 14 15 16
+]
+```
+```{julia}
+#| echo: true
+A[2:3, :]
+```
+
+Første til tredje rad, andre til fjerde kolonne:
+```{julia}
+#| echo: true
+A[1:3, 2:4]
+```
+Andre og tredje rad, alle kolonnene:
+```{julia}
+#| echo: true
+A[2:3, :]
+```
+Steglengde 2 langs kolonnene:
+```{julia}
+#| echo: true
+A[2:3, 2:2:4]
+```
+Steglengde 3 langs kolonnene:
+```{julia}
+#| echo: true
+A[2:3, 1:3:4]
+```
+
+
+
+
+### 3.2.4 jl-filer og funksjoner
+Som nevnt tidligere kan vi skrive kode i filer (som alle skal slutte på `.jl`). Når vi skriver julia-kode, er det mest vanlig å kjøre kode i filen linje-for-linje, litt som i en Jupyter-notebook. Vi kan også kjøre koden i en fil uten å først åpne en REPL. Her har vi et eksempel på en jl-fil der vi lager en matrise, og printer ut litt informasjon om den. 
+```julia
+#| echo: true
+A = [
+  1 3 0
+  2 1 1
+]
+println(A)
+println(length(A))
+println(size(A))
+println(diag(A))
+println(sum(A))
+println(A')
+```
+Denne filen kan vi kjøre ved å skrive `julia MatriseEksempel.jl` i terminalen.
+
+Her lager vi et litt mer komplekst eksempel, der vi lager en funksjon for å lage tridiagonale matriser.
+```julia
+using LinearAlgebra
+"""
+  tridiag(n)
+Lager en nxn-matrise med -2 på diagonalen og 1 på de to subdiagonalene.
+"""
+function tridiag(n)
+  identity_matrix = I(n)
+  upper_subdiagonal = Bidiagonal(zeros(n), ones(n-1), :U)
+  lower_subdiagonal = Bidiagonal(ones(n-1), zeros(n), :L)
+  A = identity_matrix + upper_subdiagonal + lower_subdiagonal
+  return A
+end
+```
+Vi legger denne filen i mappen `diverse_filer`. Hvis vi vil kjøre koden fra denne funksjonen, kan vi i en REPL skrive `include("diverse_filer/tridiag.jl")` og så `tridiag(5)`:
+
+```{julia}
+#| echo: true
+include("diverse_filer/tridiag.jl")
+tridiag(5)
+```
+Vi kan også bruke hjelpemodusen for å finne ut hva funksjonen gjør. Hjelpemoduse bruker beskrivelsen vi skrev i `docstring`-en til funksjonen (teksten mellom `"""` og `"""`).
+
+```julia
+#| echo: true
+help?> tridiag
+search: tridiag diag isdiag Tridiagonal
+
+  tridiag(n) Lager en nxn-matrise med -2 på diagonalen og 1
+  på de to subdiagonalene.
+```
+
+
+
+
+funksjon for å lage tridiagonale matriser
+
+### 3.2.5 Enkel plotting i 2D
+Makie har flere funksjoner for å plotte data i 2D, noen av de har vi vist tidligere. Her kopierer vi eksempelet fra boken, og fra oversettelsen til python:
+
+```{julia}
+#| echo: true
+x = LinRange(-2π, 2π, 41)
+y = x .^ 3
+lines(x, y)
+```
+Her har vi brukt broadcasting på `^`-operatoren, som i likhet med matematisk notasjon betyr "opphøyd i". Siden vi vil at dette skal gjøres med alle elementene i vektoren `x`, bruker vi `.`-operatoren.
+Vi valgte her å diskretisere $x$-intervallet med 41 punkter som gir steg på $\frac{4\pi}{40} = \frac{\pi}{10}$. Velges dette steget for lite blir grafen hakkete. Prøv f.eks. med et steg på $\pi/2$.
+
+Vi kan også plotte funksjoner som er gitt ved en parametrisering. En sirkel med radius r kan uttrykked med $x(t) = r \cos(t)$ og $y(t) = r \sin(t)$, der $t$ går fra 0 til $2\pi$. Vi plotter en sirkel med radius 3:
+```{julia}
+#| echo: true
+t = LinRange(0, 2π, 101)
+x = 3 * cos.(t)
+y = 3 * sin.(t)
+fig = Figure()
+ax = Axis(fig[1, 1], aspect = DataAspect())
+lines!(ax, x, y)
+fig
+```
+Her har vi brukt broadcasting på `cos` og `sin`-funksjonene, som i likhet med matematisk notasjon betyr "cosinus" og "sinus". Siden vi vil at dette skal gjøres med alle elementene i vektoren `t`, bruker vi `.`-operatoren. Vi bruker også `.`-operatoren når vi ganger med 3. Vi har også satt `aspect = DataAspect()` for at aksene skal ha samme skalering. Hvis vi ikke gjør dette, kan aksene bli forskjellige skalerte, og da ville grafen se ut som en ellipse.
+
+### 3.2.6 Punktum foran en operasjon
+Noen tegn/operasjoner (f.eks. `*`, `/`, og `^`) brukes til to forskjellige matematiske funksjoner. Når variablene disse operasjone virker på er skalarer, vil den vanlige betydning (multiplikasjon og divisjon) gjelde slik at f.eks `3*2`vil gi det forventede svaret `6`. Hvis variablene derimot er enten vektorer eller matriser, vil operasjonene betegne de tilsvarende matriseoperasjonene. Lar vi `A`og `B` være to matriser, vil `A*B` være matrisemultiplikasjon av `A` og `B`:
+
+```{julia}
+#| echo: true
+A = [1 2; 3 4]
+B = [5 6; 7 8]
+A * B
+```
+Ønsker vi derimot at hvert element i `A` skal multipliseres med det tilsvarende elementet i `B`, bruker vi broadcasting-operatoren `.` foran operasjonen, som vi var inne på i @sec-numerikk:
+
+```{julia}
+#| echo: true
+A .* B
+```
+
+I eksempelet over der vi ønsket å regne ut $y=x^3$ og vi allerede har definert en vektor med $x$-verdier, vil vi at hvert element i $x$ skal opphøyes i tredje; vi ønsker _ikke_ å bruke matrisemultiplikasjon av $x$ med seg selv to ganger. Merk at dersom du ønsker å multiplisere eller dividere en vektor eller en matrise med en skalar, behøver man ikke bruke broadcasting-operatoren `.` foran operasjonen. Her følger noen eksempler:
+
+```{julia}
+#| echo: true
+A .*2
+```
+```{julia}
+#| echo: true
+A * 2
+```
+
+```{julia}
+#| echo: true
+a = collect(1:4)
+println(a)
+println(a .* 2)
+println(a * 2)
+try
+    a * a
+catch e
+    io = IOBuffer()
+    showerror(io, e)
+    error_msg = String(take!(io))
+    @warn "Det fungerer ikke å gange en kolonnevektor med seg selv:\n$(error_msg)"
+end
+@info "Vi kan gange en radvektor (a') med en kolonnevektor (a):"
+@show a' * a
+```
+
+```{julia}
+#| echo: true
+try
+    a^2
+catch e
+    io = IOBuffer()
+    showerror(io, e)
+    error_msg = String(take!(io))
+    @warn "Det fungerer ikke å opphøye en kolonnevektor i andre (samme som å gange med seg selv):\n$(error_msg)"
+end
+```
+
+
+
+Broadcasting kan også brukes på vilkårlige funksjoner som er definert for en enkelt type, men i situasjoner der man vil andvende funksjoner elementvis på en vektorer av den typen. I det følgende eksempelet bruker vi funksjonen `reverse` elementvis på en vektor med strenger:
+
+```{julia}
+#| echo: true
+@show reverse("akebakke")
+ordliste = ["eple", "tastatur", "støvsuger"]
+reverse.(ordliste)
+
+```
+
+## 3.3 Plotting av flater
+Vi skal nå se på hvordan vi kan lage plottet av flaten i figur 1.7 (og 3.1) i boken. Dette er den samme flaten som vi har studert på side 18 i kapittel 1 og er gitt matematisk ved formelen
+$$
+h = \frac{h_0}{1 + \frac{x^2 + y^2}{R^2}}
+$${#eq-Beerenberg}
+
+Formelen modelerer en isolert fjelltopp der $h$ er høyden over havflaten, $h_0$ er høyden på toppen av fjellet, og $R$ er et mål for radius i fjellet. Konstantene $h_0$ og $R$  er satt til $2277$m og $4000$m.
+
+Det kan være lurt å de påfølgende kommandoene i en REPL (eller linje for linje i en jl-fil) for å få en bedre oversikt over hva som skjer. 
+```{julia}
+#| echo: false
+#| eval: false
+using Colors
+using GLMakie
+GLMakie.activate!()
+h0 = 2277
+R = 4000
+km = 1000
+h(x, y) = h0 / (1 + (x^2 + y^2) / R^2)
+
+nx = 41
+ny = 41
+x = LinRange(-10km, 10km, nx)
+y = LinRange(-10km, 10km, ny)
+z = h.(x, y')
+
+custom_blue = RGB(0.35, 0.67, 0.93)
+color_matrix = fill(custom_blue, nx, ny)
+
+fig = Figure()
+ax = Axis3(fig[1, 1], xlabel="x [km]", ylabel="y [km]", zlabel="h [m]",
+    azimuth=0.3π, elevation=π / 6)
+surface!(ax, x ./ km, y ./ km, z, color=color_matrix)
+wireframe!(ax, x ./ km, y ./ km, z, color=:black)
+save("julia_mek1100/figurer/3_1_beerenberg.png", fig)
+```
+![En modell av fjelltoppen Beerenberg på Jan Mayen](figurer/3_1_beerenberg.png)
+
+Før vi starter, importerer vi pakkene vi trenger. Siden vi skal lage et 3D-plot, bruker vi `GLMakie.jl`. For å spesifisere samme farger som i boken, bruker vi `Colors.jl`.
+
+```julia
+using GLMakie
+using Colors
+```
+
+Først definerer vi konstantene våre $h_0$ og $R$. Vi definerer også en kosntant for å konvertere kilometer til meter.
+
+```julia
+h0 = 2277
+R = 4000
+km = 1000
+```
+
+Nå definerer vi høydenfunksjonen $h(x, y)$.
+```julia
+h(x, y) = h0 / (1 + (x^2 + y^2) / R^2)
+```
+
+$x$- og $y$-aksen skal spenne over et område på $20\times 20$ km med sentrum i origo. I motsetning til i Matlab og Python, trenger vi ikke å lage et "meshgrid", vi trenger bare $x$-verdiene og $y$-verdiene til punktene våre. Vi definerer konstanter for antallet punkter i $x$- og $y$-retningen, og lager vektorer for $x$- og $y$-verdiene.
+```julia
+nx = 41
+ny = 41
+x = LinRange(-10km, 10km, nx)
+y = LinRange(-10km, 10km, ny)
+```
+
+Antallet punkter i hver retning må tilpasses for hvert eksempel, her har vi brukt 41 punkter i hver retning, som er passelig for å unngå at flaten blir for hakkete. 
+
+Vi lager en matrise med høydene for alle kobinasjoner av $x$- og $y$-verdiene.
+```{julia}
+#| echo: true
+z = h.(x, y')
+```
+
+For å oppnå nøyaktig samme farger som i boken, lager vi en matrise med farger for hvert punkt. Her blir `color_matrix` en matrise med nx rader og ny kolonner, der hvert element er `custom_blue`.
+```julia
+custom_blue = RGB(0.35, 0.67, 0.93)
+color_matrix = fill(custom_blue, nx, ny)
+```
+
+Vi lager en figur og plasserer en 3D-akse i figuren.
+```julia
+fig = Figure()
+ax = Axis3(fig[1, 1], xlabel="x [km]", ylabel="y [km]", zlabel="h [m]")
+```
+Nå er vi klare for å plotte flaten! Her trenger vi to typer plotter: `surface` for å plotte flaten, og `wireframe` for å plotte rutenettet.
+
+```julia
+surface!(ax, x ./ km, y ./ km, z, color=color_matrix)
+wireframe!(ax, x ./ km, y ./ km, z, color=:black)
+fig
+```
+
+Her har vi brukt `./`-operatoren for å dele hvert element i `x` og `y` med `km` for å konvertere til kilometer.
+
+Det er mange muligheter for å justere og pynte på plottene våre med `Makie.jl`. Har du lyst på litt inspirasjon, anbefales det å se på [Beautiful Makie](https://beautiful.makie.org/dev/), og bla litt i [dokumentasjonen](https://docs.makie.org/stable/) til `Makie.jl`. Her tar vi med et eksempel på litt mer avansert bruk av `Makie.jl`.
+
+
+## 3.4 Plotting av konturlinjer {#sec-konturlinjer}
+Vi skal ta for oss et nytt eksempel fra kapittel 1, side 10; lufttrykket ved havoverflaten i tilknytning til et stormsenter. Formelen vi skal bruke er gitt ved
+
+$$
+p = p_0 - rac{\Delta p}{1 + \frac{x^2 + y^2}{R^2}}
+$${#eq-Lufttrykk}
+
+der $p_0$ er lufttrykket langt borte fra sentrum, $\Delta p$ er trykkfallet inn mot sentrum og $R$ er et mål for utstrekningen av lavtrykker. Konturlinjene vi skal plotte er gjengitt i @fig-lufttrykk-kontur. 
+
+```{julia}
+#| label: fig-lufttrykk-kontur
+#| fig-cap: "Til venstre: konturlinjer for konstant trykk (isobarer) rundt et lavtrykkssentrum. Til høyre: kontinuerlige farger for trykk."
+#| echo: false
+using CairoMakie
+CairoMakie.activate!()
+
+R = 50
+p0 = 1000
+dp = 40
+
+x = LinRange(-150, 0, 151)
+y = LinRange(0, 150, 151)
+p(x, y) = p0 - dp / (1 + (x^2 + y^2) / R^2)
+
+p_values = p.(x, y')
+
+cmap = :viridis
+
+fig = Figure(size=(680, 340))
+ax_contour = Axis(fig[1,1], xlabel="x [km]", ylabel="y [km]", aspect=DataAspect())
+contour!(ax_contour, x, y, p_values, levels=[970, 975, 980, 985, 990, 995],labels=true, linewidth=2, colormap=cmap, labelsize=15)
+ax_contourf = Axis(fig[1,2], xlabel="x [km]", ylabel="y [km]", aspect=DataAspect())
+cf = contourf!(ax_contourf, x, y, p_values, colormap=cmap, levels=100)
+Colorbar(fig[1,3], cf)
+fig
+```
+
+Vi starter med konstantene som skal oppgis i km ($R$) og hPa ($p_0$ og $\Delta p$).
+```julia
+R = 50
+p0 = 1000
+dp = 40
+```
+
+Vi lager en funksjon for trykket $p(x, y)$.
+```julia
+p(x, y) = p0 - dp / (1 + (x^2 + y^2) / R^2)
+```
+
+Til forskjell fra boka skal vi her la $x$-aksen være definert over et område fra -150 til 0 km, og $y$-aksen være definert over et område fra 0 til 150 km, deretter regner vi ut p-verdiene for alle kobinasjoner av $x$- og $y$-verdiene.
+```julia
+x = LinRange(-150, 0, 151)
+y = LinRange(0, 150, 151)
+p_values = p.(x, y')
+```
+
+Vi lager en figur og plasserer en 2D-akse i figuren.
+```julia
+fig = Figure()
+ax_contour = Axis(fig[1,1], xlabel="x [km]", ylabel="y [km]", aspect=DataAspect())
+``` 
+Nå plotter vi konturer med funksjonen `contour!`.
+
+```julia
+contour!(ax_contour, x, y, p_values, levels=[970, 975, 980, 985, 990, 995], 
+  labels=true, linewidth=2, labelsize=15
+)
+```
+Her har vi spesifisert at vi vil ha konturlinjer for trykkene 970, 975, 980, 985, 990 og 995 hPa. Vi har også spesifisert at vi vil ha "labels" (tekst på konturlinjene). Hvis vi vil ha andre farger kan vi bruke argumentet `colormap`. F.eks. `colormap=:plasma`, eller `colormap=:jet` (det er samme colormap som i Python-oversettelsen). For en liste over alle tilgjengelige colormaps, se [Makie.jl colormaps](https://docs.makie.org/dev/explanations/colors#Colormaps).
+
+Nå vil vi lage plottet til høyre i @fig-lufttrykk-kontur. Her bruker vi funksjonen `contourf!` for å fylle inn flatene mellom konturlinjene. Først lager vi en ny akse og plasserer den i figuren.
+
+```julia
+ax_contourf = Axis(fig[1,2], xlabel="x [km]", ylabel="y [km]", aspect=DataAspect())
+```
+
+Så plotter vi fyltene med funksjonen `contourf!`.
+
+```julia
+cf = contourf!(ax_contourf, x, y, p_values, colormap=cmap, levels=100)
+```
+
+Her har vi spesifisert at vi vil ha 100 forskjellige konturnivåer.
+For å legge til en fargebar, bruker vi funksjonen `Colorbar`. Vi lagrer også plotteobjektet i variabelen `cf` for å kunne bruke det i funksjonen `Colorbar`.
+```julia
+Colorbar(fig[1,3], cf)
+fig
+```
+
+Her har vi plassert fargebaren i figuren, og vi har brukt `fig[1,3]` for å plassere den til høyre for aksene. Når vi akser og andre ting i figure, kan vi bruke indeksering som ligner på matrise-indeksering. F.eks. `fig[1,3]` betyr figuren i rad 1, kolonne 3.
+
+## 3.5 Plotting av vektorfelt og beregning av gradientvektor
+Et vektor i kartesiske koordinater $\mathbf v = v_x(x,y)\mathbf i + v_y(x,y)\mathbf j$ kan plottes med funksjonen [arrows2d](https://docs.makie.org/dev/reference/plots/arrows).
+
+`arrows2d` kan brukes på flere måter (ta gjerne en kikk på dokumentasjonen). Her bruker vi den enkleste. Da trenger vi å spesifisere punkter (gitt ved x og y-vektorer), og en funksjon som for ethvert punkt returnerer en vektor (gitt ved en x og y-komponent).
+
+La oss ta et eksempel:
+$$
+\mathbf v = (x^2 + 2y - \frac{1}{2}xy)\mathbf i - 3y\mathbf j
+$$
+
+Vi lar $x$ og $y$ variere mellom $-5$ og $5$. Vi passer på å bruke større avstand mellom punktene for at vektorene ikke skal overlappe hverandre. 
+
+```{julia}
+x = LinRange(-5, 5, 11)
+y = LinRange(-5, 5, 11)
+``` 
+
+Så definerer vi vektorfeltet.
+```{julia}
+function v(point)
+    x = point[1]
+    y = point[2]
+    return [(x^2 + 2y - 0.5x*y), -3y]
+end
+```
+Nå kan vi plotte vektorfeltet.
+```{julia}
+arrows2d(x, y, v, lengthscale=0.04)
+``` 
+Her har vi skalert ned vektorene for at de ikke skal overlappe hverandre.
+
+
+Nå skal vi plotte gradientvektorer. Hvis vi har definert en en funksjon som er et skalarfelt i Julia, kan vi beregne gradienten med `ForwardDiff.gradient`. [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) er en pakke for å beregne gradienter numerisk. Er kan det være nyttig å poengtere forskjellen fra hvordan dette blir gjort i boken og i Python-oversettelsen. I Python-oversettelsen brukes `np.gradient` for å beregne gradienter numerisk, når man har en matrise med skalarverdier. Julia har ikke en tilsvarende funksjon, men vi kan gjøre noe bedre! Vi kan bruke [automatisk differensiering](https://en.wikipedia.org/wiki/Automatic_differentiation) for å beregne gradienten til funksjonen, gitt et vilkårlig punkt. Det finnes mange pakker for automatisk differensiering i Julia, men vi bruker her `ForwardDiff.jl` (legge den til MEK1100-miljøet i pakkemodusen!).
+
+```{julia}
+import ForwardDiff: gradient
+function h(point)
+    x = point[1]
+    y = point[2]
+    return x^2 + 2y - 0.5x*y
+end
+∇h(point) = gradient(h, point)
+∇h([1, 2])
+```
+Her har vi definert en funksjon $h$, og så definerer vi en funksjon `∇h` som beregner gradienten til $h$ gitt et vilkårlig punkt. Vi kan så beregne gradienten til $h$ gitt punktet $[1, 2]$. 
+
+Med denne gradientfunksjonen kan vi plotte gradientvektorer:
+
+```{julia}
+arrows2d(x, y, ∇h, lengthscale=0.04)
+```
+
+
+Nå skal vi bruke denne teknikken til å plotte konturlinjer og gradientvektorer for funksjonen gitt ved @eq-Beerenberg. Med noen justeringer fra eksempelet over, kan vi gjøre slik:
+
+```{julia}
+using CairoMakie
+using ForwardDiff: gradient
+
+h0 = 2.277 # km
+R = 4 # km
+
+function h(point)
+    x = point[1]
+    y = point[2]
+    return h0 / (1 + (x^2 + y^2) / R^2)
+end
+
+∇h(point) = gradient(h, point)
+
+nx = 41
+ny = 41
+x = LinRange(-10, 10, nx)
+y = LinRange(-10, 10, ny)
+points = Point2f.(x, y') #matrise med punkter
+z = h.(points)
+
+
+x_gradient = LinRange(-10, 10, 11)
+y_gradient = LinRange(-10, 10, 11)
+
+
+fig = Figure()
+ax = Axis(fig[1, 1], xlabel="x [km]", ylabel="y [km]", aspect=DataAspect())
+arrows2d!(ax, x_gradient, y_gradient, ∇h, lengthscale=5)
+contour!(ax, x, y, z, linewidth=2)
+fig
+```
+
+Her legger vi merke til at vektorene står vinkelrett på konturlinjene, akkurat som vi skulle ha forventet. For å sikre at dette ser riktig ut, er det viktig å bruke `DataAspect()` på aksen, slik at aksene ikke blir forskjellige skalerte.
+
+Ettersom `ForwardDiff.gradient` tar inn funksjoner som tar inn et punkt, definerer vi `h` som en funksjon som tar inn et punkt. For å beregne matrisen med z-verdier, bruker vi `h.(points)`, altså regner vi ut $h$ elementvis for alle punktene i matrisen (et element er et punkt).
+
+
+## 3.6 Plotting av strømlinjer
+I kapittel 4 møter iv strømfunksjonen $\psi$. Kjenner vi uttrykker for denne er det lett å plotte strømlinjene. Siden strømfunksjonen er konstant langs en strømlinje vil strømlinjene være konturlinjer for skalarfeltet $\psi$. VI kan derfor definere et grid med en x- og en y-vektor som tidligere, regne ut diskrete verider av strømfunksjonen for hvert punkt i gridet, og til slutt bruke contour-funksjonen for å plotte strømlinjene, på samme måte som vi plottet isobarene til trykkfeltet i seksjon @sec-konturlinjer.
+
+::: {.callout-note}
+Noen ganger ønsker vi å plotte strømlinjer og ekviskalarflater i samme plott. I så fall er det et viktig poeng at de kurvefamiliene står vinkelrett på hverandre. Dette oppnås ved å kreve at enhetene langs begge aksene er like, derfor bruker vi `DataAspect()` på aksen.
+:::
+
+## 3.7 Oppgaver
+Oppgavene som står i boka anbefales og kan gjøres uansett om man bruker Matlab, Python, eller Julia. 
