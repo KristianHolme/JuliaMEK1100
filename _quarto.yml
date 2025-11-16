@@ -30,19 +30,14 @@ format:
     appearance: toggle
     toc: false
     number-sections: false
-  pdf:
-    documentclass: scrreprt
-    classoption:
-      - titlepage
-      - oneside
-    toc: false
-    geometry:
-      - margin=25mm
+    smooth-scroll: true
+crossref:
+  chapters: true
 engines: [julia]
 execution:
   eval: true
 julia:
   execute:
-    daemon-timeout: 1800
+    daemon-timeout: 10800
 bibliography: "MEK1100.bib"
 lang: nb

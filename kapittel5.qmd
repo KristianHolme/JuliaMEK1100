@@ -1,3 +1,7 @@
+---
+number-offset: [4]
+---
+
 # Kapittel 5: En praktisk anvendelse av $\nabla$-operatoren i meteorologi
 
 ## 5.1 Innledning
@@ -20,14 +24,14 @@ Vi leser inn datasettet med `NCDatasets.jl`.
 using NCDatasets
 ds = NCDataset(dl_path);
 ```
-Så må vi prosesserer vi dataene. Vi finner akkurat det tidspunktet vi vil ha, og henter ut de datene vi trenger. Datasettet gjelder et stort område, så vi filtrerer ut omtrent halvparten av dataene.
+Så må vi prosessere dataene. Vi finner akkurat det tidspunktet vi vil ha, og henter ut de dataene vi trenger. Datasettet gjelder et stort område, så vi filtrerer ut omtrent halvparten av dataene.
 
 ```{julia}
 using Dates
 datetime = DateTime(2002, 2, 19, 18) # 19. Februar 2002 18:00
 time_ix = findfirst(ds["time"] .== datetime) # indeks for tiden 19. Februar 2002 18:00
 
-## filterer ut halvparten av dataen
+# filterer ut halvparten av dataene
 ny_full = length(ds["latitude"][1, :])
 ny_sub = ny_full ÷ 2
 
@@ -77,7 +81,7 @@ fig
 ```
 
 ## 5.3 Plotting av isobarer
-Vi kan nå plotte konturlinjer til trykket (isobarer). For å dinne et riktig antall konturlinjer med passende trykkverdier kreves det gjerne litt eksperimentering. For dette feltet passer det bra med jevnt fordelte isobarer fra $980$ hPa til $1025$ hPa med $5$ hPa differanse. Husk at trykket er gitt som en matrise `p`.
+Vi kan nå plotte konturlinjer til trykket (isobarer). For å finne et riktig antall konturlinjer med passende trykkverdier kreves det gjerne litt eksperimentering. For dette feltet passer det bra med jevnt fordelte isobarer fra $980$ hPa til $1025$ hPa med $5$ hPa differanse. Husk at trykket er gitt som en matrise `p`.
 
 ```{julia}
 #| label: værdata-isobarer
@@ -151,7 +155,7 @@ $$
 \nabla \cdot \mathbf v = \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y}
 $$
 
-Her hvor $u$ og $v$ er kjent bare i gitterpunktene ved matrisene $u_{ij}$ og $v_{ij}$ er de deriverte i uttrykket for divergensen approksimert med 
+Her hvor $u$ og $v$ er kjent bare i gitterpunktene ved matrisene $u_{ij}$ og $v_{ij}$, er de deriverte i uttrykket for divergensen approksimert med 
 $$
 \frac{\partial u}{\partial x} \approx \frac{u_{i+1,j} - u_{i-1,j}}{\Delta x}, \text{ og }\\
 \frac{\partial v}{\partial y} \approx \frac{v_{i,j+1} - v_{i,j-1}}{\Delta y}
@@ -257,7 +261,7 @@ Her definerer vi en funksjon for å beregne virvlingen numerisk:
 
 ```{julia}
 #| echo: true
-
+#| output: false
 """
     punkt_virvling(u, v, i, j, Δx, Δy)
 Beregner virvlingen i punktet med indeks (i, j) med ensidige og sentrale differanser.
@@ -321,7 +325,7 @@ Nå kan vi beregne virvlingen til hastighetsfeltet.
 wind_curl = virvling(u, v, Δx, Δy)
 ```
 
-Vi kan nå plotte konturlinjer for virvlingen. Her velger vi å zoome in på et mindre område sør for Island. 
+Vi kan nå plotte konturlinjer for virvlingen. Her velger vi å zoome inn på et mindre område sør for Island. 
 
 ```{julia}
 #| label: fig-værdata-virvling-kontur
@@ -330,7 +334,7 @@ fig = Figure(size = (800, 400))
 ax = GeoAxis(fig[1, 1]; limits = ((-26, -10), (59, 67)))
 c = contour!(ax, longitudes, latitudes, wind_curl * Δx, levels = [1, 5, 10, 15, 20], labels = true)
 lines!(ax, GeoMakie.coastlines(50), color = :black)
-# Colorbar(fig[1, 2], c, label = "Virvling (s⁻¹)")
+Colorbar(fig[1, 2], c, label = "Virvling (s⁻¹)")
 fig
 ```
 
@@ -342,9 +346,9 @@ fig = Figure(size = (800, 400))
 ax = GeoAxis(fig[1, 1]; limits)
 cf = contourf!(ax, longitudes, latitudes, wind_curl * Δx, colormap = :ocean, levels = 100)
 lines!(ax, GeoMakie.coastlines(50), color = :black)
-Colorbar(fig[1, 2], cf, label = L"Virvling/$|\Delta x|$ ($s^{-1}$)")
+#Colorbar(fig[1, 2], cf, label = L"Virvling/$|\Delta x|$ ($s^{-1}$)")
 fig
 ```
 
 ## 5.7 Tolkninger
-Her referer vi til kapittel 5.7 i boken, som gjelder uavhengig av programmeringsspråk.
+Her refererer vi til kapittel 5.7 i boken, som gjelder uavhengig av programmeringsspråk.

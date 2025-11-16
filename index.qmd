@@ -6,3 +6,9 @@ Dokumentasjonen til julia kan du finne her: [docs.julialang.org](https://docs.ju
 
 #
 #
+```{julia}
+#| echo: false
+#| output: false
+using Pkg
+Pkg.activate(".")
+```
