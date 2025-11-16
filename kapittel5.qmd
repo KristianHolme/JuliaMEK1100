@@ -334,7 +334,7 @@ fig = Figure(size = (800, 400))
 ax = GeoAxis(fig[1, 1]; limits = ((-26, -10), (59, 67)))
 c = contour!(ax, longitudes, latitudes, wind_curl * Δx, levels = [1, 5, 10, 15, 20], labels = true)
 lines!(ax, GeoMakie.coastlines(50), color = :black)
-Colorbar(fig[1, 2], c, label = "Virvling (s⁻¹)")
+# Colorbar(fig[1, 2], c, label = "Virvling (s⁻¹)")
 fig
 ```
 
@@ -344,9 +344,9 @@ Vi tar også med et plot med innfylling av flatene mellom konturlinjene, for å 
 #| fig-cap: Konturlinjer for virvlingen til vindfeltet, skalert med $\Delta x$, med innfylling av flatene mellom konturlinjene.
 fig = Figure(size = (800, 400))
 ax = GeoAxis(fig[1, 1]; limits)
-cf = contourf!(ax, longitudes, latitudes, wind_curl * Δx, colormap = :ocean, levels = 100)
+cf = contourf!(ax, longitudes, latitudes, wind_curl, colormap = :ocean, levels = 100)
 lines!(ax, GeoMakie.coastlines(50), color = :black)
-#Colorbar(fig[1, 2], cf, label = L"Virvling/$|\Delta x|$ ($s^{-1}$)")
+Colorbar(fig[1, 2], cf, label = L"Virvling ($s^{-1}$)")
 fig
 ```
 
