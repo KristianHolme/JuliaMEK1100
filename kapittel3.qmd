@@ -74,6 +74,10 @@ Her ser vi at vi kan legge til pakker ved å bruke kommandoen `add`. En pakke so
 ```{=html}
 <script src="https://asciinema.org/a/MgGkAZWtoDBE0t9WtoNE8Hfiu.js" id="asciicast-MgGkAZWtoDBE0t9WtoNE8Hfiu" async="true"></script>
 ```
+::: {.callout-note collapse="true"}
+Her brukte vi argumentet `--startup-file=no` fordi vi har konfigurert Julias startup-fil til å ikke aktivere Revise.jl automatisk. Men her hadde vi ikke installert `Revise.jl`, så vi la til dette argumentet for å unngå feilmelding.
+:::
+
 Avhengig av hvor mange andre pakker vi har i miljøet, kan det ta noen sekunder å installere pakker. Når vi installerer pakker blir koden til pakkene lasted ned og prekompilert.
 
 Det kan være lurt å sette opp maskinen sin slik at [Revise.jl](https://timholy.github.io/Revise.jl/stable/) automatisk aktiveres når du starter Julia. Det kan du lese mer om her: [Revise.jl config](https://timholy.github.io/Revise.jl/stable/config/).
@@ -89,7 +93,7 @@ Når vi skal bruke Makie.jl til plotting må vi velge hvilken backend vi skal br
 ```
 Å legge til disse pakkene kan ta litt tid, ettersom de har mye kode som skal prekompileres (jeg hadde allerede pakkene prekompilert når jeg tok dette opptaket).
 
-##### 3.2.1.2.* Hvordan Julia er raskere enn Matlab og Python
+##### 3.2.1.2.* Hvorfor Julia er raskere enn Matlab og Python
 I motsetning til Matlab og Python, bruker Julia en såkalt "just-in-time"-kompilator, som kompilerer koden til maskinkode rett før den kjøres, i stedet for å kompilere koden til maskinkode når den installeres.
 Når dette gjøres spesialiseres funksjonene for de input-argumentene du bruker. Disse to tingene: spesialisering og kompilering, er det som gjør Julia raskere enn Matlab og Python, nesten like raskt som C. Ulempen med dette er det kan ta litt tid å kjøre en funksjon for første gang, fordi koden du skal kjøre må spesialiseres og kompileres. Men neste gang du kjører funksjonen vil den kjøre raskt, siden koden allerede er spesialisert og kompilert. Prekompilering er når Julia gjetter på hvordan du kommer til å bruke noen funksjoner i en pakke, og kompilerer koden til maskinkode på forhånd. Dette skjer som sagt ofte når vi laster ned pakker, eller oppdaterer pakker. 
 
