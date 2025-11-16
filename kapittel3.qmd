@@ -75,7 +75,7 @@ Her ser vi at vi kan legge til pakker ved å bruke kommandoen `add`. En pakke so
 <script src="https://asciinema.org/a/MgGkAZWtoDBE0t9WtoNE8Hfiu.js" id="asciicast-MgGkAZWtoDBE0t9WtoNE8Hfiu" async="true"></script>
 ```
 ::: {.callout-note collapse="true"}
-Her brukte vi argumentet `--startup-file=no` fordi vi har konfigurert Julias startup-fil til å ikke aktivere Revise.jl automatisk. Men her hadde vi ikke installert `Revise.jl`, så vi la til dette argumentet for å unngå feilmelding.
+Her brukte vi argumentet `--startup-file no` fordi vi har konfigurert Julias startup-fil til å aktivere Revise.jl automatisk. Men her hadde vi ikke installert `Revise.jl`, så vi la til dette argumentet for å unngå feilmelding.
 :::
 
 Avhengig av hvor mange andre pakker vi har i miljøet, kan det ta noen sekunder å installere pakker. Når vi installerer pakker blir koden til pakkene lasted ned og prekompilert.
