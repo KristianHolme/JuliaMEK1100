@@ -4,7 +4,7 @@ project:
 
 book:
   title: "Julia i MEK1100"
-  subtitle: "En oversettelse fra Matlab til Python av deler av kapittel 3 og 5 i boka **Feltteori og vektoranalyse** av Bjørn Gjevik og Morten Wang Fagerland"
+  subtitle: "En oversettelse fra Matlab til Julia av deler av kapittel 3 og 5 i boka **Feltteori og vektoranalyse** av Bjørn Gjevik og Morten Wang Fagerland"
   author:
     - Kristian Holme
   original-author:
