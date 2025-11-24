@@ -14,10 +14,21 @@ I [dokumentasjonen](https://docs.julialang.org/en/v1/manual/noteworthy-differenc
 
 Kort oppsummert er Julia et godt valg for vitenskapelige beregninger, fordi språket er (basert på forfatterens subjektive mening) enklere å lære, raskere å kjøre, og morsommere å skrive enn Python og Matlab. 
 
-Det finnes selvfølgelig flere grunner til å ikke bruke Julia, feks. 
-- Julia er ikke like utbredt som Matlab og Python, så det kan være pakker for spesielle bruksområder som ikke finnes i Julia. (Heldigvis kan man enkelt bruke Python-pakker i Julia, med pakken `PythonCall.jl`)
 - Hvis man allerede er komfortabel med Matlab eller Python, og ikke er interessert i å lære seg et nytt språk.
+- Julia er ikke like utbredt som Matlab og Python, så det kan være pakker for spesielle bruksområder som ikke finnes i Julia. (Heldigvis kan man enkelt bruke Python-pakker i Julia, med pakken `PythonCall.jl`)
+Det finnes selvfølgelig flere grunner til å ikke bruke Julia, feks. 
 
+::: {.callout-note collapse="true"}
+## For de spesielt interesserte
+Er du interessert i lære mer om Julia og forskjeller mellom Julia, Python, og Matlab? Da anbefaler vi å kikke på disse kildene:
+- [What's bad about Julia?](https://viralinstruction.com/posts/badjulia/)
+- [What's great about Julia?](https://viralinstruction.com/posts/goodjulia/)
+- [Why Numba and Cython are not substitutes for Julia](https://www.stochasticlifestyle.com/why-numba-and-cython-are-not-substitutes-for-julia/)
+- [Matlab vs. Julia vs. Python](https://tobydriscoll.net/post/matlab-vs.-julia-vs.-python/)
+- [Choosing a numerical programming language](https://cepr.org/voxeu/columns/choosing-numerical-programming-language-economic-research-julia-matlab-python-or-r)
+
+Det er alltid komplisert å sammenligne hvor raske ulike språk er. Spesielt å sammenligne Julia med optimalisert Python (f.eks. med Numba eller Cython). I noen tilfeller er Julia raskere, i andre tilfeller er Python raskere. Den tredje blog-posten over viser at for relle problemer er Julia raskere, men det finnes nok andre eksempler der Python er raskere. Til syvende og siste faller språkvalget på personlige preferanser, og da er det i det minste en god idé å være klar over alternativene før man tar et valg. (Det er selvfølgelig ikke noe problem å lære seg flere språk!)
+:::
 
 I dette dokumentet vil vi bruke standard Julia for beregninger, og plotte-biblioteket [Makie.jl](https://docs.makie.org/stable/) for plotting. `Makie.jl` er et moderne bibliotek for datavisualisering og plotting, og er et av de mest populære plotte-bibliotekene i Julia. 
 
