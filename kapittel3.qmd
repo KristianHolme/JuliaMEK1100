@@ -6,28 +6,32 @@ number-offset: [2]
 
 ## 3.1 Innledning
 Vi starter med et lite avsnitt om hvorfor det kan være en god idé å bruke Julia, i stedet for alternativer som Matlab og Python.
-I likhet med Matlab er Julia laget for vitenskapelige beregninger, og har mye innebygget funksjonalitet for dette. Sammenlignet med Matlab er Julia mer moderne, det er gratis å bruke, det er i mange tilfeller raskere enn Matlab, og det er mye enklere å bruke kode (pakker, funksjoner, etc.) som andre har laget, eller dele din egen kode så andre kan bruke den. 
+I likhet med Matlab er Julia laget for vitenskapelige beregninger, og har mye innebygget funksjonalitet for dette. Sammenlignet med Matlab er Julia mer moderne, det er gratis å bruke, det er i mange tilfeller [raskere](https://julialang.org/benchmarks/) enn Matlab, og det er mye enklere å bruke kode (pakker, funksjoner, etc.) som andre har laget, eller dele din egen kode så andre kan bruke den. 
 
 Mange av disse fordelene gjelder også i sammenligning med Python. Python er i motsetning til Julia ikke laget spesifikt for vitenskapelige beregninger, så Julia kan være mer "ergonomisk" når man skal gjøre vitenskapelige beregninger. Det kan også være vanskeligere å få relativt enkle programmer til å kjøre raskt, hvis man ikke er en erfaren Python-bruker.
 
 I [dokumentasjonen](https://docs.julialang.org/en/v1/manual/noteworthy-differences/) til Julia kan du lese mer om forskjellene mellom Julia og andre språk (inkludert Python og Matlab).
 
-Kort oppsummert er Julia et godt valg for vitenskapelige beregninger, fordi språket er (basert på forfatterens subjektive mening) enklere å lære, raskere å kjøre, og morsommere å skrive enn Python og Matlab. 
+Det finnes selvfølgelig flere grunner til å ikke bruke Julia, feks.
 
-- Hvis man allerede er komfortabel med Matlab eller Python, og ikke er interessert i å lære seg et nytt språk.
+- Hvis man allerede har lang erfaring med Matlab eller Python, og ikke er interessert i å lære seg et nytt språk.
 - Julia er ikke like utbredt som Matlab og Python, så det kan være pakker for spesielle bruksområder som ikke finnes i Julia. (Heldigvis kan man enkelt bruke Python-pakker i Julia, med pakken `PythonCall.jl`)
-Det finnes selvfølgelig flere grunner til å ikke bruke Julia, feks. 
 
 ::: {.callout-note collapse="true"}
 ## For de spesielt interesserte
-Er du interessert i lære mer om Julia og forskjeller mellom Julia, Python, og Matlab? Da anbefaler vi å kikke på disse kildene:
+Er du interessert i lære mer om Julia og forskjeller mellom Julia, Python, og Matlab? Her er noen kilder som kan være et godt utgangspunkt:
+
 - [What's bad about Julia?](https://viralinstruction.com/posts/badjulia/)
 - [What's great about Julia?](https://viralinstruction.com/posts/goodjulia/)
 - [Why Numba and Cython are not substitutes for Julia](https://www.stochasticlifestyle.com/why-numba-and-cython-are-not-substitutes-for-julia/)
 - [Matlab vs. Julia vs. Python](https://tobydriscoll.net/post/matlab-vs.-julia-vs.-python/)
 - [Choosing a numerical programming language](https://cepr.org/voxeu/columns/choosing-numerical-programming-language-economic-research-julia-matlab-python-or-r)
 
-Det er alltid komplisert å sammenligne hvor raske ulike språk er. Spesielt å sammenligne Julia med optimalisert Python (f.eks. med Numba eller Cython). I noen tilfeller er Julia raskere, i andre tilfeller er Python raskere. Den tredje blog-posten over viser at for relle problemer er Julia raskere, men det finnes nok andre eksempler der Python er raskere. Til syvende og siste faller språkvalget på personlige preferanser, og da er det i det minste en god idé å være klar over alternativene før man tar et valg. (Det er selvfølgelig ikke noe problem å lære seg flere språk!)
+Når det gjelder sammenligninger av [ytelse](https://julialang.org/benchmarks/), så er det ofte komplisert å sammenligne hvor raske ulike språk er. Spesielt å sammenligne Julia med optimalisert Python (f.eks. med Numpy, Numba og/eller Cython). I noen tilfeller er Julia raskere, i andre tilfeller kan Python være raskere. Du har kanskje hørt at man bør unngå for-løkker i Python og heller bruke f.eks. vektorisering med numpy? Det er fordi numpy er skrevet i C og er veldig raskt, men Python i seg selv er tregt. I Julia er situasjonen annerledes, der er språket i seg selv (inkludert for-løkker) raskt. Satt litt på spissen: for å få høy ytelse med Python, bør du bruke minst mulig Python-kode (ved å bruke numpy, Numba, Cython, etc.), men for å få høy ytelse med Julia trenger du bare Julia-kode.
+
+Den tredje blog-posten over viser at for et spesifikt reelt problem er Julia raskere enn Optimalisert Python. Ytelse handler også mye om koden som skrives, og det fullt mulig å skrive et Julia-program med lav ytelse (se ["performance tips"](https://docs.julialang.org/en/v1/manual/performance-tips/) for tips for å unngå dette). Uansett hvilket språk man bruker så er det lurt å lære seg teknikker for høy ytelse, hvis dette er viktig for anvendelsen din.
+
+Til syvende og sist faller språkvalget på personlige preferanser, og da er det i det minste en god idé å være klar over alternativene før man tar et valg. (Det er selvfølgelig ikke noe problem å lære seg flere språk!) 
 :::
 
 I dette dokumentet vil vi bruke standard Julia for beregninger, og plotte-biblioteket [Makie.jl](https://docs.makie.org/stable/) for plotting. `Makie.jl` er et moderne bibliotek for datavisualisering og plotting, og er et av de mest populære plotte-bibliotekene i Julia. 
@@ -49,7 +53,7 @@ winget install --name Julia --id 9NJNWW8PVKMN -e -s msstore
 
 Her vil vi gi en liten introduksjon til hvordan man starter med å bruke Julia. Det finnes mange andre ressurser på internett som kan hjelpe deg med å komme i gang, f.eks. [denne](https://youtube.com/playlist?list=PLhQ2JMBcfAsiu2BjeDuj0OXxD1Or_FjID&si=eNP1FW-ErIrD5fvA) spillelisten med korte videoer på YouTube.
 
-Står du fast, vil som regel et kjapt Google-søk eller en LLM-prompt (f.eks. ChatGPT) hjelpe deg. Hvis dette ikke løser problemet, kan du spørre forfatteren/oversetteren for hjelp.
+Står du fast, vil som regel et kjapt Google-søk eller en LLM-prompt (f.eks. ChatGPT) hjelpe deg. Hvis dette ikke løser problemet, kan du spørre [forfatteren/oversetteren](https://www.mn.uio.no/math/personer/vit/kholme/) om hjelp.
 
 
 ### 3.2.1 Oppstart, grensesnitt, kommentarer
