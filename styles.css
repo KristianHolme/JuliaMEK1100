@@ -1,0 +1,4 @@
+/* Fix for bibliography display on GitHub Pages */
+#refs {
+    display: block !important;
+}

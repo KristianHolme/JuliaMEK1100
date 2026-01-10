@@ -1,9 +1,7 @@
 ---
-nocite: |
-  @*
+nocite: '@*'
 ---
-# Bibliografi
-
+# Referanser
 
 ::: {#refs}
 :::

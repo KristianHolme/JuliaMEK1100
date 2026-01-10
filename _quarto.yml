@@ -31,6 +31,7 @@ format:
     toc: false
     number-sections: false
     smooth-scroll: true
+    css: styles.css
 crossref:
   chapters: true
 engines: [julia]
