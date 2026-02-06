@@ -638,7 +638,7 @@ fig
 
 Her har vi brukt `./`-operatoren for å dele hvert element i `x` og `y` med `km` for å konvertere til kilometer.
 
-Det er mange muligheter for å justere og pynte på plottene våre med `Makie.jl`. Har du lyst på litt inspirasjon, anbefales det å se på [Beautiful Makie](https://beautiful.makie.org/dev/), og bla litt i [dokumentasjonen](https://docs.makie.org/stable/) til `Makie.jl`. Her tar vi med et eksempel på litt mer avansert bruk av `Makie.jl`.
+Det er mange muligheter for å justere og pynte på plottene våre med `Makie.jl`. Har du lyst på litt inspirasjon, anbefales det å se på [Beautiful Makie](https://beautiful.makie.org/stable/), og bla litt i [dokumentasjonen](https://docs.makie.org/stable/) til `Makie.jl`. Her tar vi med et eksempel på litt mer avansert bruk av `Makie.jl`.
 
 
 ## 3.4 Plotting av konturlinjer {#sec-konturlinjer}
@@ -709,7 +709,7 @@ contour!(ax_contour, x, y, p_values, levels=[970, 975, 980, 985, 990, 995],
   labels=true, linewidth=2, labelsize=15
 )
 ```
-Her har vi spesifisert at vi vil ha konturlinjer for trykkene 970, 975, 980, 985, 990 og 995 hPa. Vi har også spesifisert at vi vil ha "labels" (tekst på konturlinjene). Hvis vi vil ha andre farger kan vi bruke argumentet `colormap`. F.eks. `colormap=:plasma`, eller `colormap=:jet` (`:jet` er samme colormap som i Python-oversettelsen). For en liste over alle tilgjengelige colormaps, se [Makie.jl colormaps](https://docs.makie.org/dev/explanations/colors#Colormaps).
+Her har vi spesifisert at vi vil ha konturlinjer for trykkene 970, 975, 980, 985, 990 og 995 hPa. Vi har også spesifisert at vi vil ha "labels" (tekst på konturlinjene). Hvis vi vil ha andre farger kan vi bruke argumentet `colormap`. F.eks. `colormap=:plasma`, eller `colormap=:jet` (`:jet` er samme colormap som i Python-oversettelsen). For en liste over alle tilgjengelige colormaps, se [Makie.jl colormaps](https://docs.makie.org/stable/explanations/colors#Colormaps).
 
 Nå vil vi lage plottet til høyre i @fig-lufttrykk-kontur. Her bruker vi funksjonen `contourf!` for å fylle inn flatene mellom konturlinjene. Først lager vi en ny akse og plasserer den i figuren.
 
@@ -733,7 +733,7 @@ fig
 Her har vi plassert fargebaren i figuren, og vi har brukt `fig[1,3]` for å plassere den til høyre for aksene. Når vi plasserer akser, fargebarer, og andre ting i figurer, kan vi bruke indeksering som ligner på matrise-indeksering. F.eks. `fig[1,3]` betyr plassering i rad 1, kolonne 3 i figuren.
 
 ## 3.5 Plotting av vektorfelt og beregning av gradientvektor
-En vektor i kartesiske koordinater $\mathbf v = v_x(x,y)\mathbf i + v_y(x,y)\mathbf j$ kan plottes med funksjonen [arrows2d](https://docs.makie.org/dev/reference/plots/arrows).
+En vektor i kartesiske koordinater $\mathbf v = v_x(x,y)\mathbf i + v_y(x,y)\mathbf j$ kan plottes med funksjonen [arrows2d](https://docs.makie.org/stable/reference/plots/arrows).
 
 `arrows2d` kan brukes på flere måter (ta gjerne en kikk på dokumentasjonen). Her bruker vi den enkleste. Da trenger vi å spesifisere punkter (gitt ved x og y-vektorer), og en funksjon som for ethvert punkt returnerer en vektor (gitt ved en x og y-komponent).
 
